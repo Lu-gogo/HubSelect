@@ -19,6 +19,14 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 app.use(cors());
 app.use(express.json());
 
+// 定义分类关键词库
+const CATEGORY_MAP = {
+  "课程作业": ["lab", "homework", "course", "assignment", "project", "实验", "作业"],
+  "技术笔记": ["notes", "learning", "study", "awesome", "interview", "笔记", "面试"],
+  "实用工具": ["tool", "script", "plugin", "util", "auto", "工具", "脚本"],
+  "实战项目": ["app", "web", "system", "management", "platform", "系统", "平台"]
+};
+
 /**
  * 接口 1: 获取数据库中所有的项目卡片
  */
@@ -38,6 +46,7 @@ app.get('/api/projects', async (req, res) => {
     });
   }
 });
+
 
 /**
  * 接口 2: 核心功能 - 扫描 GitHub 并入库
@@ -97,6 +106,25 @@ app.post('/api/scan', async (req, res) => {
     res.status(500).json({ error: "抓取数据时出错", details: error.message });
   }
 });
+
+/**
+ * 接口 3: 清空数据库中所有的项目记录
+ */
+app.delete('/api/projects/clear', async (req, res) => {
+  try {
+    // 关键操作：删除 Project 表中的所有数据
+    const deleteResult = await prisma.project.deleteMany({});
+    
+    res.json({ 
+      message: "数据库已清空", 
+      count: deleteResult.count 
+    });
+  } catch (error) {
+    console.error("清空失败:", error);
+    res.status(500).json({ error: "清空数据库失败" });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`🚀 后端服务已启动: http://localhost:${port}`);
