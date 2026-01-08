@@ -77,7 +77,7 @@ export default function Home() {
   setLoading(true);
   try {
     // 1. 请求后端抓取数据
-    await fetch('http://localhost:5000/api/scan', {
+    await fetch('http://localhost:5000/api/projects/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
