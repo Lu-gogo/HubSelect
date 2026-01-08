@@ -5,6 +5,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "octokit": "^5.0.5",
-    "prisma": "^6.19.1"
+    "prisma": "^6.19.1",
+    "recharts": "^3.6.0"
   }
 }

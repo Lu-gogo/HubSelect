@@ -47,7 +47,6 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-
 /**
  * 接口 2: 核心功能 - 扫描 GitHub 并入库
  */
@@ -73,10 +72,22 @@ app.post('/api/scan', async (req, res) => {
     const savedProjects = [];
     for (const repo of repos) {
       if (repo.fork) continue; // 只收集原创项目
+      // 自动打标签函数
+      function autoCategorize(name, description) {
+        const text = (name + " " + (description || "")).toLowerCase();
+        for (const [category, keywords] of Object.entries(CATEGORY_MAP)) {
+          if (keywords.some(kw => text.includes(kw))) return category;
+        }
+        return "其他资源";
+      }
 
-      // 提取关键词：组合语言和标签
+      // 在 upsert 逻辑中应用
+      const category = autoCategorize(repo.name, repo.description);
       const keywords = repo.topics || [];
+      keywords.unshift(category); // 将自动分类结果排在标签第一位
+      // 提取关键词：组合语言和标签
       if (repo.language) keywords.push(repo.language);
+
 
       const project = await prisma.project.upsert({
         where: { githubId: repo.id },
