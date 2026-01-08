@@ -1,61 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Github, BookOpen, Star, Code2, Loader2 } from "lucide-react";
+import { Github, Star, Code2, Loader2 } from "lucide-react";
+import { ProjectRadar } from "./ProjectRadar";
 
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-
-interface ProjectProps {
-  project: {
-    id: number;
-    name: string;
-    description: string | null;
-    htmlUrl: string;
-    topics: string[];
-    language: string | null;
-    stars: number;
-    languageStats?: { name: string; value: number }[]; 
-  };
+// 1. 统一接口定义，导出供 Page 使用
+export interface Project {
+  id: number;
+  githubId: string;
+  name: string;
+  description: string | null;
+  htmlUrl: string;
+  topics: string[];
+  language: string | null;
+  stars: number;
+  studentName: string | null;
+  languageStats: { name: string; value: number }[] | null;
 }
 
-export function ProjectCard({ project }: ProjectProps) {
-  const [readme, setReadme] = useState("");
-  const [loadingReadme, setLoadingReadme] = useState(false);
-  const [languageData, setLanguageData] = useState<{ subject: string; A: number; fullMark: number }[]>([]);
+const THEMES: Record<string, string> = {
+  "课程作业": "bg-blue-600 text-white border-none",
+  "技术笔记": "bg-emerald-600 text-white border-none",
+  "实用工具": "bg-amber-500 text-white border-none",
+  "实战项目": "bg-violet-600 text-white border-none",
+};
 
-  const category = project.topics && project.topics.length > 0 ? project.topics[0] : "其他资源";
-  const otherTags = project.topics ? project.topics.slice(1) : [];
+export function ProjectCard({ project }: { project: Project }) {
+  const [readme, setReadme] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // 1. 组件加载时自动初始化雷达图数据
-  useEffect(() => {
-    if (project.languageStats && project.languageStats.length > 0) {
-      const stats = project.languageStats.map(l => ({
-        subject: l.name,
-        A: Number(l.value),
-        fullMark: 100
-      }));
-      setLanguageData(stats);
-    }
-  }, [project.languageStats]);
-
-  const getCategoryTheme = (cat: string) => {
-    const themes: Record<string, string> = {
-      "课程作业": "bg-blue-600 text-white border-none",
-      "技术笔记": "bg-emerald-600 text-white border-none",
-      "实用工具": "bg-amber-500 text-white border-none",
-      "实战项目": "bg-violet-600 text-white border-none",
-    };
-    return themes[cat] || "bg-slate-500 text-white border-none";
-  };
+  const category = project.topics?.[0] || "其他资源";
+  const otherTags = project.topics?.slice(1) || [];
 
   const fetchReadme = async () => {
     if (readme) return;
-    setLoadingReadme(true);
+    setLoading(true);
     try {
       const rawUrl = project.htmlUrl.replace("github.com", "raw.githubusercontent.com") + "/master/README.md";
       const res = await fetch(rawUrl);
@@ -64,7 +48,7 @@ export function ProjectCard({ project }: ProjectProps) {
     } catch {
       setReadme("# 错误\n无法连接到 GitHub 获取文档。");
     } finally {
-      setLoadingReadme(false);
+      setLoading(false);
     }
   };
 
@@ -72,9 +56,8 @@ export function ProjectCard({ project }: ProjectProps) {
     <Dialog onOpenChange={(open) => open && fetchReadme()}>
       <DialogTrigger asChild>
         <Card className="group hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col relative border-t-4 border-t-transparent hover:border-t-primary overflow-hidden">
-          {/* 顶部分类标签 */}
           <div className="absolute top-0 right-0 z-10 p-2">
-            <Badge className={`${getCategoryTheme(category)} shadow-sm text-[10px]`}>
+            <Badge className={`${THEMES[category] || "bg-slate-500"} shadow-sm text-[10px]`}>
               {category}
             </Badge>
           </div>
@@ -89,35 +72,9 @@ export function ProjectCard({ project }: ProjectProps) {
           </CardHeader>
 
           <CardContent className="flex-grow flex flex-col gap-2">
-            {/* 雷达图区域 - 直接在卡片展示 */}
-            <div className="w-full h-[160px] bg-slate-50/50 dark:bg-slate-900/40 rounded-lg flex items-center justify-center border border-dashed border-slate-200 dark:border-slate-800">
-              {languageData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="60%" data={languageData}>
-                    <PolarGrid strokeOpacity={0.5} />
-                    <PolarAngleAxis 
-                      dataKey="subject" 
-                      tick={{ fontSize: 10, fill: 'currentColor', opacity: 0.8 }} 
-                    />
-                    <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                    <Radar 
-                      name="语言占比" 
-                      dataKey="A" 
-                      stroke="#3b82f6" 
-                      fill="#3b82f6" 
-                      fillOpacity={0.5} 
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-[10px] text-muted-foreground flex flex-col items-center">
-                  <Code2 className="w-4 h-4 mb-1 opacity-20" />
-                  分析中...
-                </div>
-              )}
-            </div>
-
-            {/* 技术标签 */}
+            {/* 传递语言统计数据给雷达图组件 */}
+            <ProjectRadar stats={project.languageStats || []} />
+            
             <div className="flex flex-wrap gap-1 mt-1">
               {otherTags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-[9px] px-1.5 py-0">
@@ -138,14 +95,11 @@ export function ProjectCard({ project }: ProjectProps) {
                 <span>{project.language || "N/A"}</span>
               </div>
             </div>
-            <span className="text-primary font-bold flex items-center gap-1">
-               预览文档
-            </span>
+            <span className="text-primary font-bold">预览文档</span>
           </CardFooter>
         </Card>
       </DialogTrigger>
 
-      {/* 弹窗现在只负责展示 README 内容 */}
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
@@ -157,7 +111,7 @@ export function ProjectCard({ project }: ProjectProps) {
         </DialogHeader>
         
         <div className="mt-4 prose prose-sm dark:prose-invert max-w-none">
-          {loadingReadme ? (
+          {loading ? (
             <div className="py-20 flex justify-center"><Loader2 className="animate-spin" /></div>
           ) : (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{readme}</ReactMarkdown>
