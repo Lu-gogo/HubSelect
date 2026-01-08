@@ -81,6 +81,36 @@ app.post('/api/scan', async (req, res) => {
         return "其他资源";
       }
 
+      // --- 新增：抓取语言统计 ---
+      let repoLanguageStats = [];
+      try {
+        const { data: languages } = await octokit.rest.repos.listLanguages({
+          owner: username,
+          repo: repo.name,
+        });
+
+        // 1. 获取所有的字节数值
+        const values = Object.values(languages);
+
+        // 2. 计算总字节数 (使用 Number 强制转换确保安全)
+        const totalBytes = values.reduce((sum, bytes) => {
+          return Number(sum) + Number(bytes);
+        }, 0);
+
+        // 3. 防止除以零的情况
+        if (totalBytes > 0) {
+          repoLanguageStats = Object.entries(languages)
+            .map(([lang, bytes]) => ({
+              name: lang,
+              value: Math.round((Number(bytes) / totalBytes) * 100), // 使用 Number() 代替 as number
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 5);
+        }
+      } catch (langError) {
+        console.warn(`获取 ${repo.name} 语言统计失败:`, langError.message);
+      }
+
       // 在 upsert 逻辑中应用
       const category = autoCategorize(repo.name, repo.description);
       const keywords = repo.topics || [];
@@ -94,7 +124,8 @@ app.post('/api/scan', async (req, res) => {
         update: {
           stars: repo.stargazers_count,
           description: repo.description,
-          topics: keywords
+          topics: keywords,
+          languageStats: repoLanguageStats, // 保存语言统计
         },
         create: {
           githubId: repo.id,
@@ -104,7 +135,8 @@ app.post('/api/scan', async (req, res) => {
           language: repo.language,
           topics: keywords,
           stars: repo.stargazers_count,
-          studentName: username // 记录所属学生
+          studentName: username, // 记录所属学生
+          languageStats: repoLanguageStats, // 保存语言统计
         }
       });
       savedProjects.push(project);

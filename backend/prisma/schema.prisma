@@ -18,4 +18,5 @@ model Project {
   stars       Int      @default(0)
   studentName String?  // 简易处理：直接存学生名字
   createdAt   DateTime @default(now())
+  languageStats Json? // 新增字段，用于存储语言比例，JSON 类型
 }
