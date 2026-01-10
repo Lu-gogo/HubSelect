@@ -17,7 +17,7 @@ export function ProjectScanner({ url, setUrl, searchQuery, setSearchQuery, onSca
     <div className="flex flex-col w-full max-w-2xl mx-auto gap-4 mb-12">
       <div className="flex gap-2">
         <Input 
-          placeholder="输入 GitHub URL (例如: https://github.com/shadcn)..." 
+          placeholder="https://github.com/Lu-gogo" 
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className="flex-grow"
@@ -34,7 +34,7 @@ export function ProjectScanner({ url, setUrl, searchQuery, setSearchQuery, onSca
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input 
-          placeholder="搜索项目名称、语言或标签..." 
+          placeholder="搜索项目名称、语言..." 
           className="pl-10 border-primary/30 focus:border-primary"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

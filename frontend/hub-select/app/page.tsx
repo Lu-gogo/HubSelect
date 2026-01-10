@@ -93,7 +93,7 @@ export default function Home() {
         <h1 className="text-4xl font-black mb-2 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
           Hub Select
         </h1>
-        <p className="text-muted-foreground">智能学生开源作品采集与画像系统</p>
+        <p className="text-muted-foreground">你的项目呢？让我看看!</p>
       </div>
 
       <ProjectScanner 
@@ -120,7 +120,7 @@ export default function Home() {
 
       {filteredProjects.length === 0 && !loading && (
         <div className="text-center py-20 text-muted-foreground border rounded-xl border-dashed">
-          未找到相关项目，尝试采集更多 GitHub 仓库吧！
+          空空如也，尝试石坚更多 GitHub 仓库吧！
         </div>
       )}
     </main>
