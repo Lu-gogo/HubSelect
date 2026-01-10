@@ -16,7 +16,7 @@ export function ProjectRadar({ stats }: { stats: RadarStat[] }) {
   }));
 
   return (
-    <div className="w-full aspect-square min-h-[180px] bg-slate-50/50 dark:bg-slate-900/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
+    <div className="w-full aspect-ratio min-h-[180px] bg-slate-50/50 dark:bg-slate-900/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
       {data.length > 0 ? (
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>

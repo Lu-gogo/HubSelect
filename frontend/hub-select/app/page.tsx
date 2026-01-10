@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { ProjectCard, type Project } from "@/components/ProjectCard";
 import { ProjectScanner } from "@/components/ProjectScanner";
+import { ProjectTabs } from "@/components/ProjectTab";
 
 export default function Home() {
   const [url, setUrl] = useState<string>("");
@@ -11,6 +12,10 @@ export default function Home() {
   // ✅ 修复：指定状态类型为 Project 数组
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // ✅ 定义分类常量
+  const categories = ["全部", "课程作业", "技术笔记", "开发项目"];
+  const [currentTab, setCurrentTab] = useState<string>("全部");
 
   const fetchExistingData = async () => {
     try {
@@ -28,13 +33,19 @@ export default function Home() {
     fetchExistingData();
   }, []);
 
+  // ✅ 联合过滤逻辑
   const filteredProjects = useMemo(() => {
-    return projects.filter(proj => 
-      proj.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      proj.topics.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      proj.language?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery, projects]);
+    return projects.filter((proj) => {
+      const matchesSearch = 
+        proj.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        proj.topics.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))||
+        proj.language?.toLowerCase().includes(searchQuery.toLowerCase())  ;
+      
+      const matchesTab = currentTab === "全部" || proj.topics[0] === currentTab;
+      
+      return matchesSearch && matchesTab;
+    });
+  }, [searchQuery, projects, currentTab]);
 
   const handleScan = async () => {
     if (!url) return;
@@ -95,7 +106,13 @@ export default function Home() {
         loading={loading}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <ProjectTabs 
+        categories={categories}
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[400px]">
         {filteredProjects.map((proj) => (
           <ProjectCard key={proj.id} project={proj} />
         ))}

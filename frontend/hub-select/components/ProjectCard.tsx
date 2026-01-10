@@ -24,10 +24,10 @@ export interface Project {
 }
 
 const THEMES: Record<string, string> = {
-  "课程作业": "bg-blue-600 text-white border-none",
+  "课程作业": "bg-amber-500 text-white border-none",
   "技术笔记": "bg-emerald-600 text-white border-none",
-  "实用工具": "bg-amber-500 text-white border-none",
-  "实战项目": "bg-violet-600 text-white border-none",
+  // "实用工具": "bg-amber-500 text-white border-none",
+  "开发项目": "bg-pink-600 text-white border-none",
 };
 
 export function ProjectCard({ project }: { project: Project }) {
