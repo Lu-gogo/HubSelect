@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Aclonica, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 // 1. 导入 Script 组件
@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const aclonica = Aclonica({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-aclonica', // 定义一个变量名
+});
+
 export const metadata: Metadata = {
   title: "Hub Select ",
   description: "软件学院开源资源共享平台",
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
+        className={`${aclonica.variable} ${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         {children}
 
