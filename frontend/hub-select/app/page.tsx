@@ -45,12 +45,20 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
-      if (res.ok) {
-        await fetchExistingData(); // 同步后刷新列表
-        // setUrl(""); // 可选：清空输入框
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // ✅ 这里会弹出后端 throw 的具体错误信息（如“用户不存在”）
+        alert(`提示: ${data.details || "采集异常"}`);
+        return;
       }
+
+      await fetchExistingData();
+      alert(`成功同步 ${data.count} 个仓库`);
+      
     } catch (error) {
-      alert("同步失败，请检查后端服务");
+      alert("网络请求失败，请检查后端服务是否启动");
     } finally {
       setLoading(false);
     }

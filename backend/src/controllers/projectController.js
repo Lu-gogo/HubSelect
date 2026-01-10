@@ -15,13 +15,20 @@ const getProjects = async (req, res) => {
 const scanUserRepos = async (req, res) => {
   const { url } = req.body;
   
+  if (!url) {
+    return res.status(400).json({ error: "请输入 GitHub URL" });
+  }
+  
   try {
-    // 💡 直接调用 Service，它内部会处理循环入库
     const result = await githubService.syncStudentRepos(url);
     res.json(result); 
   } catch (error) {
-    console.error("❌ 后端崩溃详情:", error);
-    res.status(500).json({ error: "同步失败", details: error.message });
+    // 将 Error 对象中的 message 返回给前端
+    console.error("💡 捕获到预期内错误:", error.message);
+    res.status(400).json({ 
+      error: "采集失败", 
+      details: error.message 
+    });
   }
 };
 
