@@ -47,7 +47,7 @@ export default function Home() {
       });
       if (res.ok) {
         await fetchExistingData(); // 同步后刷新列表
-        setUrl(""); 
+        // setUrl(""); // 可选：清空输入框
       }
     } catch (error) {
       alert("同步失败，请检查后端服务");
