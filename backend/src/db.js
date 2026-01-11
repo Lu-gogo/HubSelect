@@ -1,5 +1,10 @@
+
 // backend/src/db.js
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 
 // 全局单例模式初始化 Prisma
-export const prisma = new PrismaClient();
+const prisma = new PrismaClient();
+
+module.exports = {
+  prisma
+};

@@ -1,6 +1,6 @@
-import { Octokit } from "octokit";
-import { prisma } from "../db.js";
-import { autoCategorize } from "../utils/classifier.js";
+const { Octokit } = require("octokit");
+const { prisma } = require("../db.js");
+const { autoCategorize } = require("../utils/classifier.js");
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -19,10 +19,10 @@ async function getRepoLanguageStats(owner, repo) {
   } catch (e) { return []; }
 }
 
-export const syncStudentRepos = async (githubUrl) => {
+const syncStudentRepos = async (githubUrl) => {
   // 1. 增加基础合法性校验：提取用户名并验证 URL 格式
   const username = githubUrl.replace(/\/$/, '').split('/').pop();
-  
+
   // 简单的正则验证，确保不是空的或者纯符号，且包含 github.com
   if (!username || !githubUrl.includes('github.com')) {
     throw new Error("无效的 GitHub 链接，请输入正确的用户主页地址");
@@ -85,7 +85,7 @@ export const syncStudentRepos = async (githubUrl) => {
     if (error.status === 404) {
       throw new Error(`GitHub 用户 "${username}" 不存在，请检查地址是否正确`);
     }
-    
+
     // 捕获 API 频率限制（Rate Limit）
     if (error.status === 403) {
       throw new Error("访问过于频繁，GitHub 暂时拒绝了请求，请稍后再试");
@@ -94,4 +94,9 @@ export const syncStudentRepos = async (githubUrl) => {
     // 重新抛出其他未预料的错误，交给 Controller 处理
     throw error;
   }
+};
+
+// 导出模块
+module.exports = {
+  syncStudentRepos
 };

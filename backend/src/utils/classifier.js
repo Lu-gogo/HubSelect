@@ -6,10 +6,15 @@ const CATEGORY_MAP = {
   // "实战项目": ["app", "web", "system", "management", "platform", "系统", "平台"]
 };
 
-export const autoCategorize = (name, description) => {
+const autoCategorize = (name, description) => {
   const text = `${name} ${description || ""}`.toLowerCase();
   for (const [category, keywords] of Object.entries(CATEGORY_MAP)) {
     if (keywords.some(kw => text.includes(kw))) return category;
   }
   return "开发项目";
+};
+
+// 导出模块
+module.exports = {
+  autoCategorize
 };
