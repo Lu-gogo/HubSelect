@@ -19,7 +19,7 @@ export default function Home() {
 
   const fetchExistingData = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/projects');
+      const res = await fetch('/api/projects');   //http://localhost:5000/api
       const data = await res.json();
       if (Array.isArray(data)) {
         setProjects(data as Project[]);
@@ -51,7 +51,7 @@ export default function Home() {
     if (!url) return;
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/projects/scan', {
+      const res = await fetch('/api/projects/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
@@ -69,7 +69,9 @@ export default function Home() {
       alert(`成功同步 ${data.count} 个仓库`);
       
     } catch (error) {
-      alert("网络请求失败，请检查后端服务是否启动");
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("请求失败详情:", error); // 在控制台打印完整对象供调试
+      alert(`网络请求失败: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -78,7 +80,7 @@ export default function Home() {
   const handleClear = async () => {
     if (!confirm("确定要清空所有数据吗？")) return;
     try {
-      const res = await fetch('http://localhost:5000/api/projects/clear', { method: 'DELETE' });
+      const res = await fetch('/api/projects/clear', { method: 'DELETE' });
       if (res.ok) {
         setProjects([]);
       }
