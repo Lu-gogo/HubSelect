@@ -19,7 +19,7 @@ export default function Home() {
 
   const fetchExistingData = async () => {
     try {
-      const res = await fetch('/api/projects');   //http://localhost:5000/api
+      const res = await fetch('http://localhost:5000/api/projects');   //http://localhost:5000/api
       const data = await res.json();
       if (Array.isArray(data)) {
         setProjects(data as Project[]);
@@ -51,7 +51,7 @@ export default function Home() {
     if (!url) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/projects/scan', {
+      const res = await fetch('http://localhost:5000/api/projects/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
@@ -80,7 +80,7 @@ export default function Home() {
   const handleClear = async () => {
     if (!confirm("确定要清空所有数据吗？")) return;
     try {
-      const res = await fetch('/api/projects/clear', { method: 'DELETE' });
+      const res = await fetch('http://localhost:5000/api/projects/clear', { method: 'DELETE' });
       if (res.ok) {
         setProjects([]);
       }
